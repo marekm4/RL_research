@@ -4,22 +4,22 @@ from stable_baselines3 import DQN
 
 from dqne import DQNE
 
-for env_name in ["CartPole-v1", "LunarLander-v3"]:
-    for timesteps in range(1, 11):
+for env_name in ["CartPole-v1"]:
+    for timesteps in range(10_000, 40_000, 10_000):
         for algo in [DQN, DQNE]:
-            env = gym.make(env_name)
-            train = 10
+            seeds = [42, 137, 256, 512, 999]
             total_train_reward = 0.0
 
-            for train_step in range(train):
-
-                model = algo("MlpPolicy", env)
-                model.learn(total_timesteps=timesteps * 10000)
+            for seed in seeds:
+                env = gym.make(env_name)
+                env.reset(seed=seed)
+                model = algo("MlpPolicy", env, seed=seed)
+                model.learn(total_timesteps=timesteps)
 
                 episodes = 10
                 total_reward = 0.0
                 for _ in range(episodes):
-                    observation, _ = env.reset()
+                    observation, _ = env.reset(seed=seed)
                     while True:
                         action, _states = model.predict(observation, deterministic=True)
                         observation, reward, terminated, truncated, _ = env.step(action)
@@ -29,8 +29,7 @@ for env_name in ["CartPole-v1", "LunarLander-v3"]:
                         if terminated or truncated:
                             break
                 env.close()
-                # print("Training Iter:", train_step, "Reward:", total_reward / episodes)
                 total_train_reward += total_reward / episodes
 
-            total_train_reward = total_train_reward / train
-            print("Env:", env_name, "Algo:", str(algo), "Steps:", timesteps * 10000, "Reward:", total_train_reward)
+            total_train_reward = total_train_reward / len(seeds)
+            print("Env:", env_name, "Algo:", str(algo), "Steps:", timesteps, "Reward:", total_train_reward)
