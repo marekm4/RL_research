@@ -10,10 +10,9 @@ import matplotlib.pyplot as plt
 results = {}
 
 for env_name in ["CartPole-v1", "LunarLander-v3"]:
-    for timesteps in range(10_000, 60_000, 10_000):
+    for timesteps in range(10_000, 110_000, 10_000):
         for algo in ["DQN", "DQNE"]:
             seeds = [42, 137, 256, 512, 999]
-            seeds = [42]
             total_train_reward = 0.0
 
             for seed in seeds:
